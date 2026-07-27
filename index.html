@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz: Autocuidado, Respeito e Bem-Estar</title>
+  <style>
+    :root {
+      --primary: #7c3aed;
+      --primary-hover: #6d28d9;
+      --bg: #f3f4f6;
+      --card-bg: #ffffff;
+      --text: #1f2937;
+      --correct: #10b981;
+      --incorrect: #ef4444;
+      --correct-bg: #ecfdf5;
+      --incorrect-bg: #fef2f2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .quiz-container {
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      max-width: 600px;
+      width: 100%;
+      padding: 32px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    header p {
+      font-size: 0.95rem;
+      color: #6b7280;
+    }
+
+    .question-card {
+      display: none;
+    }
+
+    .question-card.active {
+      display: block;
+    }
+
+    .question-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .options-grid {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .btn-option {
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 14px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .btn-option:hover {
+      border-color: var(--primary);
+      background: #f5f3ff;
+    }
+
+    .feedback {
+      display: none;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .feedback.correct {
+      display: block;
+      background-color: var(--correct-bg);
+      border: 1px solid var(--correct);
+      color: #065f46;
+    }
+
+    .feedback.incorrect {
+      display: block;
+      background-color: var(--incorrect-bg);
+      border: 1px solid var(--incorrect);
+      color: #991b1b;
+    }
+
+    .feedback-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .btn-next {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      display: none;
+      transition: background 0.2s ease;
+    }
+
+    .btn-next:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .score-container {
+      text-align: center;
+      display: none;
+    }
+
+    .score-container h2 {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+      color: var(--primary);
+    }
+
+    .score-container p {
+      font-size: 1.1rem;
+      margin-bottom: 24px;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 20%;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-container">
+    <header>
+      <h1>Quiz: Conscientização e Respeito</h1>
+      <p>Teste seus conhecimentos sobre autocuidado, limites e convivência.</p>
+    </header>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress"></div>
+    </div>
+
+    <div id="quiz-body">
+      <!-- As perguntas serão renderizadas via JS -->
+    </div>
+
+    <div class="score-container" id="score-screen">
+      <h2>Quiz Concluído! 🎉</h2>
+      <p id="score-text"></p>
+      <button class="btn-next" style="display: block;" onclick="restartQuiz()">Refazer Quiz</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "1. Autocuidado também inclui cuidar da saúde sexual e fazer exames preventivos regularmente.",
+        answer: true,
+        explanation: "O autocuidado envolve cuidar da saúde física e emocional. Fazer exames preventivos e buscar orientação médica quando necessário ajuda a prevenir doenças e promove mais qualidade de vida."
+      },
+      {
+        question: "2. O consentimento deve ser claro e pode ser retirado a qualquer momento.",
+        answer: true,
+        explanation: "Consentimento significa que todas as pessoas envolvidas concordam livremente com uma situação. Essa decisão pode ser mudada a qualquer momento e deve ser sempre respeitada."
+      },
+      {
+        question: "3. Fazer piadas ou comentários de conotação sexual com colegas é aceitável, desde que seja uma brincadeira.",
+        answer: false,
+        explanation: "Mesmo que pareça uma brincadeira, esse tipo de comentário pode causar desconforto e configurar assédio. O respeito deve estar presente em todas as relações no ambiente de trabalho."
+      },
+      {
+        question: "4. Respeitar os limites, a privacidade e as diferenças das pessoas contribui para um ambiente de trabalho mais saudável.",
+        answer: true,
+        explanation: "Quando há respeito às diferenças e aos limites de cada pessoa, o ambiente se torna mais acolhedor, seguro e agradável para todos."
+      },
+      {
+        question: "5. Sexualidade está relacionada apenas às relações sexuais e não tem ligação com o autocuidado ou o respeito.",
+        answer: false,
+        explanation: "A sexualidade também envolve sentimentos, identidade, relacionamentos, respeito, saúde e autocuidado. Ela faz parte do bem-estar e da qualidade de vida das pessoas."
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const quizBody = document.getElementById('quiz-body');
+    const scoreScreen = document.getElementById('score-screen');
+    const scoreText = document.getElementById('score-text');
+    const progressBar = document.getElementById('progress');
+
+    function renderQuestion() {
+      const q = questions[currentQuestionIndex];
+      progressBar.style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+
+      quizBody.innerHTML = `
+        <div class="question-card active">
+          <div class="question-title">${q.question}</div>
+          <div class="options-grid">
+            <button class="btn-option" onclick="checkAnswer(true)">✅ Verdadeiro</button>
+            <button class="btn-option" onclick="checkAnswer(false)">❌ Falso</button>
+          </div>
+          <div id="feedback" class="feedback"></div>
+          <button id="btn-next" class="btn-next" onclick="nextQuestion()">Próxima Pergunta</button>
+        </div>
+      `;
+    }
+
+    function checkAnswer(userAnswer) {
+      const q = questions[currentQuestionIndex];
+      const feedbackEl = document.getElementById('feedback');
+      const btnNext = document.getElementById('btn-next');
+      const options = document.querySelectorAll('.btn-option');
+
+      // Desabilita os botões para não clicar duas vezes
+      options.forEach(btn => btn.disabled = true);
+
+      const isCorrect = userAnswer === q.answer;
+
+      if (isCorrect) {
+        score++;
+        feedbackEl.className = "feedback correct";
+        feedbackEl.innerHTML = `<span class="feedback-title">✨ Resposta Correta!</span>${q.explanation}`;
+      } else {
+        feedbackEl.className = "feedback incorrect";
+        feedbackEl.innerHTML = `<span class="feedback-title">⚠️ Resposta Incorreta</span>${q.explanation}`;
+      }
+
+      btnNext.style.display = 'block';
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      quizBody.style.display = 'none';
+      scoreScreen.style.display = 'block';
+      scoreText.innerText = `Você acertou ${score} de ${questions.length} perguntas!`;
+    }
+
+    function restartQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      quizBody.style.display = 'block';
+      scoreScreen.style.display = 'none';
+      renderQuestion();
+    }
+
+    // Inicializar quiz
+    renderQuestion();
+  </script>
+</body>
+</html>
